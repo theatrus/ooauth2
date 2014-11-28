@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"golang.org/x/oauth2"
+	"github.com/theatrus/oauth2"
 
 	"appengine"
 	"appengine/memcache"

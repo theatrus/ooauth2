@@ -11,7 +11,7 @@
 //
 // For more information, please read
 // https://developers.google.com/accounts/docs/OAuth2.
-package google // import "golang.org/x/oauth2/google"
+package google // import "github.com/theatrus/oauth2/google"
 
 import (
 	"encoding/json"
@@ -22,8 +22,8 @@ import (
 	"net/url"
 	"time"
 
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/internal"
+	"github.com/theatrus/oauth2"
+	"github.com/theatrus/oauth2/internal"
 )
 
 var (

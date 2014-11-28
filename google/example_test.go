@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"testing"
 
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
+	"github.com/theatrus/oauth2"
+	"github.com/theatrus/oauth2/google"
 	"google.golang.org/appengine"
 )
 
