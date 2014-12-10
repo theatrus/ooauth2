@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultTokenType = "Bearer"
+	defaultTokenType            = "Bearer"
 	expirationHysteresisSeconds = 60
 )
 
@@ -130,7 +130,7 @@ func (t *Transport) Token() *Token {
 // checkAndRefresh check token expiration using hysteresis,
 // will fetch a new token if possible using refreshToken,
 // and then write it to the TokenStore if defined.
-func (t* Transport) checkAndRefreshToken() (*Token, error) {
+func (t *Transport) checkAndRefreshToken() (*Token, error) {
 	token := t.token
 
 	// Do an initial check to see if the token is expired
@@ -141,6 +141,9 @@ func (t* Transport) checkAndRefreshToken() (*Token, error) {
 		// times
 		t.mu.Lock()
 		defer t.mu.Unlock()
+		// Now locked, refresh the token as the token is often not
+		// mutated.
+		token := t.token
 
 		if token == nil || token.ExpiringSoon() {
 			// Check if the token is refreshable.
