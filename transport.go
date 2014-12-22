@@ -102,7 +102,7 @@ func newTransport(base http.RoundTripper, opts *Options, token *Token) *Transpor
 // tries to refresh/fetch a new token.
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
-	token, err := t.checkAndRefreshToken()
+	token, err := t.CheckAndRefreshToken()
 	if err != nil {
 		return nil, err
 	}
@@ -127,10 +127,10 @@ func (t *Transport) Token() *Token {
 	return t.token
 }
 
-// checkAndRefresh check token expiration using hysteresis,
+// CheckAndRefresh check token expiration using hysteresis,
 // will fetch a new token if possible using refreshToken,
 // and then write it to the TokenStore if defined.
-func (t *Transport) checkAndRefreshToken() (*Token, error) {
+func (t *Transport) CheckAndRefreshToken() (*Token, error) {
 	token := t.token
 
 	// Do an initial check to see if the token is expired
