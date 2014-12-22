@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/theatrus/oauth2"
-	"github.com/theatrus/oauth2/google"
+	"github.com/theatrus/ooauth2"
+	"github.com/theatrus/ooauth2/google"
 	"google.golang.org/appengine"
 )
 
@@ -24,10 +24,10 @@ func TestA(t *testing.T) {}
 func Example_webServer() {
 	// Your credentials should be obtained from the Google
 	// Developer Console (https://console.developers.google.com).
-	opts, err := oauth2.New(
-		oauth2.Client("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET"),
-		oauth2.RedirectURL("YOUR_REDIRECT_URL"),
-		oauth2.Scope(
+	opts, err := ooauth2.New(
+		ooauth2.Client("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET"),
+		ooauth2.RedirectURL("YOUR_REDIRECT_URL"),
+		ooauth2.Scope(
 			"https://www.googleapis.com/auth/bigquery",
 			"https://www.googleapis.com/auth/blogger",
 		),
@@ -58,9 +58,9 @@ func Example_serviceAccountsJSON() {
 	// To create a service account client, click "Create new Client ID",
 	// select "Service Account", and click "Create Client ID". A JSON
 	// key file will then be downloaded to your computer.
-	opts, err := oauth2.New(
+	opts, err := ooauth2.New(
 		google.ServiceAccountJSONKey("/path/to/your-project-key.json"),
-		oauth2.Scope(
+		ooauth2.Scope(
 			"https://www.googleapis.com/auth/bigquery",
 			"https://www.googleapis.com/auth/blogger",
 		),
@@ -78,7 +78,7 @@ func Example_serviceAccountsJSON() {
 func Example_serviceAccounts() {
 	// Your credentials should be obtained from the Google
 	// Developer Console (https://console.developers.google.com).
-	opts, err := oauth2.New(
+	opts, err := ooauth2.New(
 		// The contents of your RSA private key or your PEM file
 		// that contains a private key.
 		// If you have a p12 file instead, you
@@ -87,10 +87,10 @@ func Example_serviceAccounts() {
 		//    $ openssl pkcs12 -in key.p12 -out key.pem -nodes
 		//
 		// It only supports PEM containers with no passphrase.
-		oauth2.JWTClient(
+		ooauth2.JWTClient(
 			"xxx@developer.gserviceaccount.com",
 			[]byte("-----BEGIN RSA PRIVATE KEY-----...")),
-		oauth2.Scope(
+		ooauth2.Scope(
 			"https://www.googleapis.com/auth/bigquery",
 			"https://www.googleapis.com/auth/blogger",
 		),
@@ -99,7 +99,7 @@ func Example_serviceAccounts() {
 		// create a transport with a subject. The following GET
 		// request will be made on the behalf of user@example.com.
 		// Subject is optional.
-		oauth2.Subject("user@example.com"),
+		ooauth2.Subject("user@example.com"),
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -113,9 +113,9 @@ func Example_serviceAccounts() {
 
 func Example_appEngine() {
 	ctx := appengine.NewContext(nil)
-	opts, err := oauth2.New(
+	opts, err := ooauth2.New(
 		google.AppEngineContext(ctx),
-		oauth2.Scope(
+		ooauth2.Scope(
 			"https://www.googleapis.com/auth/bigquery",
 			"https://www.googleapis.com/auth/blogger",
 		),
@@ -130,7 +130,7 @@ func Example_appEngine() {
 }
 
 func Example_computeEngine() {
-	opts, err := oauth2.New(
+	opts, err := ooauth2.New(
 		// Query Google Compute Engine's metadata server to retrieve
 		// an access token for the provided account.
 		// If no account is specified, "default" is used.

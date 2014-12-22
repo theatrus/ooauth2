@@ -14,13 +14,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/theatrus/oauth2"
+	"github.com/theatrus/ooauth2"
 
 	"appengine"
 	"appengine/memcache"
 )
 
-type tokMap map[string]*oauth2.Token
+type tokMap map[string]*ooauth2.Token
 
 type mockMemcache struct {
 	mu                 sync.RWMutex
@@ -28,7 +28,7 @@ type mockMemcache struct {
 	getCount, setCount int
 }
 
-func (m *mockMemcache) Get(c appengine.Context, key string, tok *oauth2.Token) (*memcache.Item, error) {
+func (m *mockMemcache) Get(c appengine.Context, key string, tok *ooauth2.Token) (*memcache.Item, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.getCount++
@@ -44,9 +44,9 @@ func (m *mockMemcache) Set(c appengine.Context, item *memcache.Item) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.setCount++
-	tok, ok := item.Object.(oauth2.Token)
+	tok, ok := item.Object.(ooauth2.Token)
 	if !ok {
-		log.Fatalf("unexpected test error: item.Object is not an oauth2.Token: %#v", item)
+		log.Fatalf("unexpected test error: item.Object is not an ooauth2.Token: %#v", item)
 	}
 	m.vals[item.Key] = &tok
 	return nil
@@ -73,9 +73,9 @@ func TestFetchTokenLocalCacheMiss(t *testing.T) {
 	memcacheGob = m
 	accessTokenCount = 0
 	delete(tokens, testScopeKey) // clear local cache
-	f, err := oauth2.New(
+	f, err := ooauth2.New(
 		AppEngineContext(nil),
-		oauth2.Scope(testScope),
+		ooauth2.Scope(testScope),
 	)
 	if err != nil {
 		t.Error(err)
@@ -104,13 +104,13 @@ func TestFetchTokenLocalCacheHit(t *testing.T) {
 	memcacheGob = m
 	accessTokenCount = 0
 	// Pre-populate the local cache
-	tokens[testScopeKey] = &oauth2.Token{
+	tokens[testScopeKey] = &ooauth2.Token{
 		AccessToken: "mytoken",
 		Expiry:      time.Now().Add(1 * time.Hour),
 	}
-	f, err := oauth2.New(
+	f, err := ooauth2.New(
 		AppEngineContext(nil),
-		oauth2.Scope(testScope),
+		ooauth2.Scope(testScope),
 	)
 	if err != nil {
 		t.Error(err)
@@ -143,7 +143,7 @@ func TestFetchTokenMemcacheHit(t *testing.T) {
 	accessTokenCount = 0
 	delete(tokens, testScopeKey) // clear local cache
 	// Pre-populate the memcache
-	tok := &oauth2.Token{
+	tok := &ooauth2.Token{
 		AccessToken: "mytoken",
 		Expiry:      time.Now().Add(1 * time.Hour),
 	}
@@ -154,9 +154,9 @@ func TestFetchTokenMemcacheHit(t *testing.T) {
 	})
 	m.setCount = 0
 
-	f, err := oauth2.New(
+	f, err := ooauth2.New(
 		AppEngineContext(nil),
-		oauth2.Scope(testScope),
+		ooauth2.Scope(testScope),
 	)
 	if err != nil {
 		t.Error(err)
@@ -184,12 +184,12 @@ func TestFetchTokenLocalCacheExpired(t *testing.T) {
 	memcacheGob = m
 	accessTokenCount = 0
 	// Pre-populate the local cache
-	tokens[testScopeKey] = &oauth2.Token{
+	tokens[testScopeKey] = &ooauth2.Token{
 		AccessToken: "mytoken",
 		Expiry:      time.Now().Add(-1 * time.Hour),
 	}
 	// Pre-populate the memcache
-	tok := &oauth2.Token{
+	tok := &ooauth2.Token{
 		AccessToken: "mytoken",
 		Expiry:      time.Now().Add(1 * time.Hour),
 	}
@@ -199,9 +199,9 @@ func TestFetchTokenLocalCacheExpired(t *testing.T) {
 		Expiration: 1 * time.Hour,
 	})
 	m.setCount = 0
-	f, err := oauth2.New(
+	f, err := ooauth2.New(
 		AppEngineContext(nil),
-		oauth2.Scope(testScope),
+		ooauth2.Scope(testScope),
 	)
 	if err != nil {
 		t.Error(err)
@@ -230,7 +230,7 @@ func TestFetchTokenMemcacheExpired(t *testing.T) {
 	accessTokenCount = 0
 	delete(tokens, testScopeKey) // clear local cache
 	// Pre-populate the memcache
-	tok := &oauth2.Token{
+	tok := &ooauth2.Token{
 		AccessToken: "mytoken",
 		Expiry:      time.Now().Add(-1 * time.Hour),
 	}
@@ -240,9 +240,9 @@ func TestFetchTokenMemcacheExpired(t *testing.T) {
 		Expiration: -1 * time.Hour,
 	})
 	m.setCount = 0
-	f, err := oauth2.New(
+	f, err := ooauth2.New(
 		AppEngineContext(nil),
-		oauth2.Scope(testScope),
+		ooauth2.Scope(testScope),
 	)
 	if err != nil {
 		t.Error(err)

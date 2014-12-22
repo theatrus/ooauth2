@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package oauth2_test
+package ooauth2_test
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/theatrus/oauth2"
+	"github.com/theatrus/ooauth2"
 )
 
 // TODO(jbd): Remove after Go 1.4.
@@ -18,13 +18,13 @@ import (
 func TestA(t *testing.T) {}
 
 func Example_regular() {
-	opts, err := oauth2.New(
-		oauth2.Client("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET"),
-		oauth2.RedirectURL("YOUR_REDIRECT_URL"),
-		oauth2.Scope("SCOPE1", "SCOPE2"),
-		oauth2.Endpoint(
-			"https://provider.com/o/oauth2/auth",
-			"https://provider.com/o/oauth2/token",
+	opts, err := ooauth2.New(
+		ooauth2.Client("YOUR_CLIENT_ID", "YOUR_CLIENT_SECRET"),
+		ooauth2.RedirectURL("YOUR_REDIRECT_URL"),
+		ooauth2.Scope("SCOPE1", "SCOPE2"),
+		ooauth2.Endpoint(
+			"https://provider.com/o/ooauth2/auth",
+			"https://provider.com/o/ooauth2/token",
 		),
 	)
 	if err != nil {
@@ -56,7 +56,7 @@ func Example_regular() {
 }
 
 func Example_jWT() {
-	opts, err := oauth2.New(
+	opts, err := ooauth2.New(
 		// The contents of your RSA private key or your PEM file
 		// that contains a private key.
 		// If you have a p12 file instead, you
@@ -65,16 +65,16 @@ func Example_jWT() {
 		//    $ openssl pkcs12 -in key.p12 -out key.pem -nodes
 		//
 		// It only supports PEM containers with no passphrase.
-		oauth2.JWTClient(
+		ooauth2.JWTClient(
 			"xxx@developer.gserviceaccount.com",
 			[]byte("-----BEGIN RSA PRIVATE KEY-----...")),
-		oauth2.Scope("SCOPE1", "SCOPE2"),
-		oauth2.JWTEndpoint("https://provider.com/o/oauth2/token"),
+		ooauth2.Scope("SCOPE1", "SCOPE2"),
+		ooauth2.JWTEndpoint("https://provider.com/o/oauth2/token"),
 		// If you would like to impersonate a user, you can
 		// create a transport with a subject. The following GET
 		// request will be made on the behalf of user@example.com.
 		// Subject is optional.
-		oauth2.Subject("user@example.com"),
+		ooauth2.Subject("user@example.com"),
 	)
 	if err != nil {
 		log.Fatal(err)

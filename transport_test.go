@@ -1,4 +1,4 @@
-package oauth2
+package ooauth2
 
 import (
 	"net/http"

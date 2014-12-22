@@ -2,10 +2,10 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package oauth2 provides support for making
+// Package ooauth2 provides support for making
 // OAuth2 authorized and authenticated HTTP requests.
 // It can additionally grant authorization with Bearer JWT.
-package oauth2 // import "github.com/theatrus/oauth2"
+package ooauth2 // import "github.com/theatrus/oauth2"
 
 import (
 	"crypto/rsa"
@@ -115,7 +115,7 @@ func New(option ...Option) (*Options, error) {
 		opts.TokenFetcherFunc = makeThreeLeggedFetcher(opts)
 		return opts, nil
 	default:
-		return nil, errors.New("oauth2: missing endpoints, can't determine how to fetch tokens")
+		return nil, errors.New("ooauth2: missing endpoints, can't determine how to fetch tokens")
 	}
 }
 
@@ -220,7 +220,7 @@ func (o *Options) newTransportFromToken(t *Token) *Transport {
 func makeThreeLeggedFetcher(o *Options) func(t *Token) (*Token, error) {
 	return func(t *Token) (*Token, error) {
 		if t == nil || t.RefreshToken == "" {
-			return nil, errors.New("oauth2: cannot fetch access token without refresh token")
+			return nil, errors.New("ooauth2: cannot fetch access token without refresh token")
 		}
 		return retrieveToken(o, url.Values{
 			"grant_type":    {"refresh_token"},
@@ -307,10 +307,10 @@ func retrieveToken(o *Options, v url.Values) (*Token, error) {
 	defer r.Body.Close()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, fmt.Errorf("oauth2: cannot fetch token: %v", err)
+		return nil, fmt.Errorf("ooauth2: cannot fetch token: %v", err)
 	}
 	if code := r.StatusCode; code < 200 || code > 299 {
-		return nil, fmt.Errorf("oauth2: cannot fetch token: %v\nResponse: %s", r.Status, body)
+		return nil, fmt.Errorf("ooauth2: cannot fetch token: %v\nResponse: %s", r.Status, body)
 	}
 
 	token := &Token{}
@@ -374,7 +374,7 @@ func condVal(v string) []string {
 
 // providerAuthHeaderWorks reports whether the OAuth2 server identified by the tokenURL
 // implements the OAuth2 spec correctly
-// See https://code.google.com/p/goauth2/issues/detail?id=31 for background.
+// See https://code.google.com/p/gooauth2/issues/detail?id=31 for background.
 // In summary:
 // - Reddit only accepts client secret in the Authorization header
 // - Dropbox accepts either it in URL param or Auth header, but not both.

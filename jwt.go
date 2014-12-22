@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package oauth2
+package ooauth2
 
 import (
 	"encoding/json"
@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/theatrus/oauth2/internal"
-	"github.com/theatrus/oauth2/jws"
+	"github.com/theatrus/ooauth2/internal"
+	"github.com/theatrus/ooauth2/jws"
 )
 
 var (
@@ -86,19 +86,19 @@ func makeTwoLeggedFetcher(o *Options) func(t *Token) (*Token, error) {
 		}
 		resp, err := c.PostForm(o.AUD.String(), v)
 		if err != nil {
-			return nil, fmt.Errorf("oauth2: cannot fetch token: %v", err)
+			return nil, fmt.Errorf("ooauth2: cannot fetch token: %v", err)
 		}
 		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return nil, fmt.Errorf("oauth2: cannot fetch token: %v", err)
+			return nil, fmt.Errorf("ooauth2: cannot fetch token: %v", err)
 		}
 		if c := resp.StatusCode; c < 200 || c > 299 {
-			return nil, fmt.Errorf("oauth2: cannot fetch token: %v\nResponse: %s", resp.Status, body)
+			return nil, fmt.Errorf("ooauth2: cannot fetch token: %v\nResponse: %s", resp.Status, body)
 		}
 		b := make(map[string]interface{})
 		if err := json.Unmarshal(body, &b); err != nil {
-			return nil, fmt.Errorf("oauth2: cannot fetch token: %v", err)
+			return nil, fmt.Errorf("ooauth2: cannot fetch token: %v", err)
 		}
 		token := &Token{}
 		token.AccessToken, _ = b["access_token"].(string)
@@ -111,7 +111,7 @@ func makeTwoLeggedFetcher(o *Options) func(t *Token) (*Token, error) {
 			// decode returned id token to get expiry
 			claimSet, err := jws.Decode(idtoken)
 			if err != nil {
-				return nil, fmt.Errorf("oauth2: cannot fetch token: %v", err)
+				return nil, fmt.Errorf("ooauth2: cannot fetch token: %v", err)
 			}
 			token.Expiry = time.Unix(claimSet.Exp, 0)
 			return token, nil

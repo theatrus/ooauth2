@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/theatrus/oauth2"
+	"github.com/theatrus/ooauth2"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/memcache"
 )
@@ -27,7 +27,7 @@ var (
 	mu sync.Mutex
 
 	// tokens implements a local cache of tokens to prevent hitting quota limits for appengine.AccessToken calls.
-	tokens map[string]*oauth2.Token
+	tokens map[string]*ooauth2.Token
 )
 
 // safetyMargin is used to avoid clock-skew problems.
@@ -35,12 +35,12 @@ var (
 const safetyMargin = 5 * time.Minute
 
 func init() {
-	tokens = make(map[string]*oauth2.Token)
+	tokens = make(map[string]*ooauth2.Token)
 }
 
 // AppEngineContext requires an App Engine request context.
-func AppEngineContext(ctx appengine.Context) oauth2.Option {
-	return func(opts *oauth2.Options) error {
+func AppEngineContext(ctx appengine.Context) ooauth2.Option {
+	return func(opts *ooauth2.Options) error {
 		opts.TokenFetcherFunc = makeAppEngineTokenFetcher(ctx, opts)
 		return nil
 	}
@@ -49,8 +49,8 @@ func AppEngineContext(ctx appengine.Context) oauth2.Option {
 // FetchToken fetches a new access token for the provided scopes.
 // Tokens are cached locally and also with Memcache so that the app can scale
 // without hitting quota limits by calling appengine.AccessToken too frequently.
-func makeAppEngineTokenFetcher(ctx appengine.Context, opts *oauth2.Options) func(*oauth2.Token) (*oauth2.Token, error) {
-	return func(existing *oauth2.Token) (*oauth2.Token, error) {
+func makeAppEngineTokenFetcher(ctx appengine.Context, opts *ooauth2.Options) func(*oauth2.Token) (*oauth2.Token, error) {
+	return func(existing *ooauth2.Token) (*oauth2.Token, error) {
 		mu.Lock()
 		defer mu.Unlock()
 
@@ -62,7 +62,7 @@ func makeAppEngineTokenFetcher(ctx appengine.Context, opts *oauth2.Options) func
 		delete(tokens, key)
 
 		// Attempt to get token from Memcache
-		tok := new(oauth2.Token)
+		tok := new(ooauth2.Token)
 		_, err := memcacheGob.Get(ctx, key, tok)
 		if err == nil && !tok.Expiry.Before(now) {
 			tokens[key] = tok // Save token locally
@@ -73,7 +73,7 @@ func makeAppEngineTokenFetcher(ctx appengine.Context, opts *oauth2.Options) func
 		if err != nil {
 			return nil, err
 		}
-		t := &oauth2.Token{
+		t := &ooauth2.Token{
 			AccessToken: token,
 			Expiry:      expiry,
 		}
@@ -94,7 +94,7 @@ func makeAppEngineTokenFetcher(ctx appengine.Context, opts *oauth2.Options) func
 // aeMemcache wraps the needed Memcache functionality to make it easy to mock
 type aeMemcache struct{}
 
-func (m *aeMemcache) Get(c appengine.Context, key string, tok *oauth2.Token) (*memcache.Item, error) {
+func (m *aeMemcache) Get(c appengine.Context, key string, tok *ooauth2.Token) (*memcache.Item, error) {
 	return memcache.Gob.Get(c, key, tok)
 }
 
@@ -103,6 +103,6 @@ func (m *aeMemcache) Set(c appengine.Context, item *memcache.Item) error {
 }
 
 type memcacher interface {
-	Get(c appengine.Context, key string, tok *oauth2.Token) (*memcache.Item, error)
+	Get(c appengine.Context, key string, tok *ooauth2.Token) (*memcache.Item, error)
 	Set(c appengine.Context, item *memcache.Item) error
 }

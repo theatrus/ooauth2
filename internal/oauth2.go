@@ -30,7 +30,7 @@ func ParseKey(key []byte) (*rsa.PrivateKey, error) {
 	}
 	parsed, ok := parsedKey.(*rsa.PrivateKey)
 	if !ok {
-		return nil, errors.New("oauth2: private key is invalid")
+		return nil, errors.New("ooauth2: private key is invalid")
 	}
 	return parsed, nil
 }

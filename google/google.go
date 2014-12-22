@@ -11,7 +11,7 @@
 //
 // For more information, please read
 // https://developers.google.com/accounts/docs/OAuth2.
-package google // import "github.com/theatrus/oauth2/google"
+package google // import "github.com/theatrus/ooauth2/google"
 
 import (
 	"encoding/json"
@@ -22,13 +22,13 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/theatrus/oauth2"
-	"github.com/theatrus/oauth2/internal"
+	"github.com/theatrus/ooauth2"
+	"github.com/theatrus/ooauth2/internal"
 )
 
 var (
-	uriGoogleAuth, _  = url.Parse("https://accounts.google.com/o/oauth2/auth")
-	uriGoogleToken, _ = url.Parse("https://accounts.google.com/o/oauth2/token")
+	uriGoogleAuth, _  = url.Parse("https://accounts.google.com/o/ooauth2/auth")
+	uriGoogleToken, _ = url.Parse("https://accounts.google.com/o/ooauth2/token")
 )
 
 type metaTokenRespBody struct {
@@ -38,16 +38,16 @@ type metaTokenRespBody struct {
 }
 
 // JWTEndpoint adds the endpoints required to complete the 2-legged service account flow.
-func JWTEndpoint() oauth2.Option {
-	return func(opts *oauth2.Options) error {
+func JWTEndpoint() ooauth2.Option {
+	return func(opts *ooauth2.Options) error {
 		opts.AUD = uriGoogleToken
 		return nil
 	}
 }
 
 // Endpoint adds the endpoints required to do the 3-legged Web server flow.
-func Endpoint() oauth2.Option {
-	return func(opts *oauth2.Options) error {
+func Endpoint() ooauth2.Option {
+	return func(opts *ooauth2.Options) error {
 		opts.AuthURL = uriGoogleAuth
 		opts.TokenURL = uriGoogleToken
 		return nil
@@ -57,8 +57,8 @@ func Endpoint() oauth2.Option {
 // ComputeEngineAccount uses the specified account to retrieve an access
 // token from the Google Compute Engine's metadata server. If no user is
 // provided, "default" is being used.
-func ComputeEngineAccount(account string) oauth2.Option {
-	return func(opts *oauth2.Options) error {
+func ComputeEngineAccount(account string) ooauth2.Option {
+	return func(opts *ooauth2.Options) error {
 		if account == "" {
 			account = "default"
 		}
@@ -71,8 +71,8 @@ func ComputeEngineAccount(account string) oauth2.Option {
 // JSON key file to authorize the user. See the "Credentials" page under
 // "APIs & Auth" for your project at https://console.developers.google.com
 // to download a JSON key file.
-func ServiceAccountJSONKey(filename string) oauth2.Option {
-	return func(opts *oauth2.Options) error {
+func ServiceAccountJSONKey(filename string) ooauth2.Option {
+	return func(opts *ooauth2.Options) error {
 		b, err := ioutil.ReadFile(filename)
 		if err != nil {
 			return err
@@ -95,8 +95,8 @@ func ServiceAccountJSONKey(filename string) oauth2.Option {
 	}
 }
 
-func makeComputeFetcher(opts *oauth2.Options, account string) func(*oauth2.Token) (*oauth2.Token, error) {
-	return func(t *oauth2.Token) (*oauth2.Token, error) {
+func makeComputeFetcher(opts *ooauth2.Options, account string) func(*oauth2.Token) (*oauth2.Token, error) {
+	return func(t *ooauth2.Token) (*oauth2.Token, error) {
 		u := "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/" + account + "/token"
 		req, err := http.NewRequest("GET", u, nil)
 		if err != nil {
@@ -113,14 +113,14 @@ func makeComputeFetcher(opts *oauth2.Options, account string) func(*oauth2.Token
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode < 200 || resp.StatusCode > 299 {
-			return nil, fmt.Errorf("oauth2: can't retrieve a token from metadata server, status code: %d", resp.StatusCode)
+			return nil, fmt.Errorf("ooauth2: can't retrieve a token from metadata server, status code: %d", resp.StatusCode)
 		}
 		var tokenResp metaTokenRespBody
 		err = json.NewDecoder(resp.Body).Decode(&tokenResp)
 		if err != nil {
 			return nil, err
 		}
-		return &oauth2.Token{
+		return &ooauth2.Token{
 			AccessToken: tokenResp.AccessToken,
 			TokenType:   tokenResp.TokenType,
 			Expiry:      time.Now().Add(tokenResp.ExpiresIn * time.Second),

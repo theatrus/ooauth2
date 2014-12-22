@@ -4,7 +4,7 @@
 
 // Package jws provides encoding and decoding utilities for
 // signed JWS messages.
-package jws // import "github.com/theatrus/oauth2/jws"
+package jws // import "github.com/theatrus/ooauth2/jws"
 
 import (
 	"bytes"
