@@ -5,7 +5,7 @@
 // Package ooauth2 provides support for making
 // OAuth2 authorized and authenticated HTTP requests.
 // It can additionally grant authorization with Bearer JWT.
-package ooauth2 // import "github.com/theatrus/oauth2"
+package ooauth2 // import "github.com/theatrus/ooauth2"
 
 import (
 	"crypto/rsa"
