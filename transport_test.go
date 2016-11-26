@@ -1,6 +1,7 @@
 package ooauth2
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,6 +12,7 @@ type mockTokenFetcher struct{ token *Token }
 
 func (f *mockTokenFetcher) Fn() func(*Token) (*Token, error) {
 	return func(*Token) (*Token, error) {
+		fmt.Println("returning a token")
 		return f.token, nil
 	}
 }
@@ -38,10 +40,13 @@ func TestTokenFetch(t *testing.T) {
 		if r.Header.Get("Authorization") != "Bearer abc" {
 			t.Errorf("Transport doesn't set the Authorization header from the fetched token")
 		}
+		w.WriteHeader(http.StatusOK)
+		fmt.Println("got request")
+		fmt.Fprintln(w, "Hello, client")
 	})
 	defer server.Close()
 
-	client := http.Client{Transport: tr}
+	client := &http.Client{Transport: tr}
 	client.Get(server.URL)
 	if tr.Token().AccessToken != "abc" {
 		t.Errorf("New token is not set, found %v", tr.Token())

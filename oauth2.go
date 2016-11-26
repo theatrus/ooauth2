@@ -8,7 +8,6 @@
 package ooauth2 // import "github.com/theatrus/ooauth2"
 
 import (
-	"crypto/rsa"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -106,12 +105,7 @@ func New(option ...Option) (*Options, error) {
 	switch {
 	case opts.TokenFetcherFunc != nil:
 		return opts, nil
-	case opts.AUD != nil:
-		// TODO(jbd): Assert the required JWT params.
-		opts.TokenFetcherFunc = makeTwoLeggedFetcher(opts)
-		return opts, nil
 	case opts.AuthURL != nil && opts.TokenURL != nil:
-		// TODO(jbd): Assert the required OAuth2 params.
 		opts.TokenFetcherFunc = makeThreeLeggedFetcher(opts)
 		return opts, nil
 	default:
@@ -246,16 +240,6 @@ type Options struct {
 	// Email is the OAuth client identifier used when communicating with
 	// the configured OAuth provider.
 	Email string
-
-	// PrivateKey contains the contents of an RSA private key or the
-	// contents of a PEM file that contains a private key. The provided
-	// private key is used to sign JWT payloads.
-	// PEM containers with a passphrase are not supported.
-	// Use the following command to convert a PKCS 12 file into a PEM.
-	//
-	//    $ openssl pkcs12 -in key.p12 -out key.pem -nodes
-	//
-	PrivateKey *rsa.PrivateKey
 
 	// Scopes identify the level of access being requested.
 	Subject string

@@ -5,6 +5,7 @@
 package ooauth2
 
 import (
+	"io"
 	"net/http"
 	"net/url"
 	"sync"
@@ -84,6 +85,7 @@ type Transport struct {
 
 	mu    sync.RWMutex
 	token *Token
+	modReq map[*http.Request]*http.Request // original -> modified
 }
 
 // NewTransport creates a new Transport that uses the provided
@@ -103,20 +105,31 @@ func newTransport(base http.RoundTripper, opts *Options, token *Token) *Transpor
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	token, err := t.CheckAndRefreshToken()
-	if err != nil {
+	if err != nil || token == nil {
 		return nil, err
 	}
 
 	// To set the Authorization header, we must make a copy of the Request
 	// so that we don't modify the Request we were given.
 	// This is required by the specification of http.RoundTripper.
-	req = cloneRequest(req)
+	req2 := cloneRequest(req)
 	typ := token.TokenType
 	if typ == "" {
 		typ = defaultTokenType
 	}
-	req.Header.Set("Authorization", typ+" "+token.AccessToken)
-	return t.base.RoundTrip(req)
+	req2.Header.Set("Authorization", typ+" "+token.AccessToken)
+	t.setModReq(req, req2)
+
+	res, err := t.base.RoundTrip(req2)
+	if err != nil {
+		t.setModReq(req, nil)
+		return nil, err
+	}
+	res.Body = &onEOFReader{
+		rc: res.Body,
+		fn: func() { t.setModReq(req, nil) },
+	}
+	return res, nil
 }
 
 // Token returns the token that authorizes and
@@ -174,6 +187,20 @@ func (t *Transport) refreshToken() error {
 	return nil
 }
 
+
+func (t *Transport) setModReq(orig, mod *http.Request) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.modReq == nil {
+		t.modReq = make(map[*http.Request]*http.Request)
+	}
+	if mod == nil {
+		delete(t.modReq, orig)
+	} else {
+		t.modReq[orig] = mod
+	}
+}
+
 // cloneRequest returns a clone of the provided *http.Request.
 // The clone is a shallow copy of the struct and its Header map.
 func cloneRequest(r *http.Request) *http.Request {
@@ -186,4 +213,30 @@ func cloneRequest(r *http.Request) *http.Request {
 		r2.Header[k] = s
 	}
 	return r2
+}
+
+type onEOFReader struct {
+	rc io.ReadCloser
+	fn func()
+}
+
+func (r *onEOFReader) Read(p []byte) (n int, err error) {
+	n, err = r.rc.Read(p)
+	if err == io.EOF {
+		r.runFunc()
+	}
+	return
+}
+
+func (r *onEOFReader) Close() error {
+	err := r.rc.Close()
+	r.runFunc()
+	return err
+}
+
+func (r *onEOFReader) runFunc() {
+	if fn := r.fn; fn != nil {
+		fn()
+		r.fn = nil
+	}
 }
