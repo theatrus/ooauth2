@@ -57,10 +57,15 @@ func (t *Token) Extra(key string) string {
 // ExpiringSoon returns true if the token is expired or
 // will be expiring soon within a hysteresis, currently 60 seconds
 func (t *Token) ExpiringSoon() bool {
+	return t.ExpiringWithin(expirationHysteresisSeconds * time.Second)
+}
+
+// ExpiringWithin returns true if the token is expired or
+// will be expiring soon within the given time frame
+func (t *Token) ExpiringWithin(hysteresis time.Duration) bool {
 	if t.Expiry.IsZero() {
 		return false
 	} else {
-		hysteresis := expirationHysteresisSeconds * time.Second
 		futureExpiry := t.Expiry.Add(hysteresis)
 		return t.Expired() || futureExpiry.Before(time.Now())
 	}
