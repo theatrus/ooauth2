@@ -105,7 +105,7 @@ func newTransport(base http.RoundTripper, opts *Options, token *Token) *Transpor
 func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	token, err := t.CheckAndRefreshToken()
-	if err != nil || token == nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -156,7 +156,7 @@ func (t *Transport) CheckAndRefreshToken() (*Token, error) {
 		defer t.mu.Unlock()
 		// Now locked, refresh the token as the token is often not
 		// mutated.
-		token := t.token
+		token = t.token
 
 		if token == nil || token.ExpiringSoon() {
 			// Check if the token is refreshable.
